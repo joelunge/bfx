@@ -9,6 +9,7 @@ module.exports = {
         "ZRX", "GNT", "DAI", "SAN", "DTH",
         "EDO", "ELF", "XVG", "LYM", "BAT"
         */
+        
     ],
     mongoDbConnectionString: 'mongodb://root:example@localhost/test?authSource=admin'
 }
