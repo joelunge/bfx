@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
 [
   CHANNEL_ID,
@@ -10,24 +12,6 @@
   ]
 ]
 */
-
-const INFLUX_DB_NAME = 'trades_db';
-const Influx = require('influx');
-const influx = new Influx.InfluxDB({
-    host: 'localhost',
-    database: INFLUX_DB_NAME,
-    schema: [{
-        measurement: 'trades',
-        fields: {
-            path: Influx.FieldType.FLOAT,
-            amount: Influx.FieldType.FLOAT,
-            price: Influx.FieldType.FLOAT,
-        },
-        tags: [
-            'currency'
-        ]
-    }]
-})
 
 const ws = require('ws')
 const slugify = require('slugify')
@@ -53,10 +37,10 @@ const tradeSchema = new Schema({
     changedPriceDown: Number,
     affectMax: Number,
     affectMin: Number,
-    minPrice: Number,
-    maxPrice: Number,
     volume: Number,
     open: Number,
+    high: Number,
+    low: Number,
     close: Number,
     timestamp: Number,
 })
@@ -110,10 +94,10 @@ function makeCallback(key_, saveValues_) {
         changedPriceDown: 0,
         affectMax: 0,
         affectMin: 0,
-        minPrice: Infinity,
-        maxPrice: 0,
         volume: 0,
         open: NaN,
+        high: 0,
+        low: Infinity,
         close: NaN,
         timestamp
     })
@@ -178,7 +162,6 @@ function makeCallback(key_, saveValues_) {
             currentValues = makeCurrentValues(getCurrentMinute() - (getCurrentMinute() % 60000))
         }
 
-
         currentValues.count++;
 
         currentValues.totalAmount += amount;
@@ -191,14 +174,14 @@ function makeCallback(key_, saveValues_) {
         // Trade Volume
         currentValues.volume += Math.abs(amount)
 
-        if (price > currentValues.maxPrice) {
+        if (price > currentValues.high) {
             currentValues.affectMax++;
-            currentValues.maxPrice = price
+            currentValues.high = price
         }
 
-        if (price < currentValues.minPrice) {
+        if (price < currentValues.low) {
             currentValues.affectMin++;
-            currentValues.minPrice = price
+            currentValues.low = price
         }
 
         // X hur många av transaktionerna påverkade priset

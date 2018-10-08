@@ -11,5 +11,5 @@ module.exports = {
         */
         
     ],
-    mongoDbConnectionString: 'mongodb://root:example@localhost/test?authSource=admin'
+    mongoDbConnectionString: 'mongodb://localhost/bfx'
 }
