@@ -271,14 +271,6 @@ function onMessage(msg) {
 // Run if started as program
 if (require.main === module) {
 
-    influx.getDatabaseNames()
-        .then(names => {
-            if (!names.includes(INFLUX_DB_NAME)) {
-                return influx.createDatabase(INFLUX_DB_NAME);
-            }
-        })
-
-
     const w = new ReconnectingWebSocket("wss://api.bitfinex.com/ws/2", [], options);
 
     mongoose.connect(config.mongoDbConnectionString, { useNewUrlParser: true });
