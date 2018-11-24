@@ -86,15 +86,35 @@ function makeCallback(key_, saveValues_) {
     let lastTrade = {}
 
     const makeCurrentValues = (timestamp) => ({
-        count: 0,
-        totalAmount: 0,
-        totalPrice: 0,
-        changedPrice: 0,
-        changedPriceUp: 0,
-        changedPriceDown: 0,
-        affectMax: 0,
-        affectMin: 0,
-        volume: 0,
+        /* Comment to RAVI MADAN
+         * All of these variables are stored minute by minute. So you dont have to worry about that.
+         * You just need to add the variables in the same way as the others, and do a few if / else statements in the same fashion
+         */
+
+        count: 0, // in total, how many trades was executed during 1 minute
+
+        countBuy // RAVI - in total, how many coins were bought during 1 minute
+        countSell // RAVI - in total, how many coins were sold during 1 minute
+
+        totalAmount: 0, // i dont remember what this is :D can you check and add comment here?
+        totalPrice: 0, // i dont remember what this is :D can you check and add comment here?
+
+        changedPrice: 0, // how many of the trades did change the price during 1 minute
+        changedPriceUp: 0, // how many of the trades did change the price up during 1 minute
+        changedPriceDown: 0, // how many of the trades did change the price down during 1 minute
+        
+        affectMax: 0, // i dont remember what this is :D can you check and add comment here?
+        affectMin: 0, // i dont remember what this is :D can you check and add comment here?
+        
+        volume: 0, // the sum of how many coins were traded, both buy and sell orders
+
+        volumeBuy // RAVI - the sum of how many coins were traded through BUY orders (positive amount)
+        volumeSell // RAVI - the sum of how many coins were traded through SELL orders (negative amount)
+
+        biggestTrade // RAVI - the biggest trade during 1 minute, no matter if its a buy or sell order
+        biggestTradeBuy // RAVI - the biggst BUY trade during 1 minute
+        biggestTradeSell // RAVI - the biggest SELL trade during 1 minute
+
         open: NaN,
         high: 0,
         low: Infinity,
