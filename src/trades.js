@@ -115,6 +115,10 @@ function makeCallback(key_, saveValues_) {
         biggestTradeBuy // RAVI - the biggst BUY trade during 1 minute
         biggestTradeSell // RAVI - the biggest SELL trade during 1 minute
 
+        averageTradeSize // RAVI - how big was the average trade (i think this would be amount / count)
+        averageTradeSizeBuy // RAVI - same as above but for buy orders only
+        averageTradeSizeSell // RAVI - same as above but for sell orders only
+
         open: NaN,
         high: 0,
         low: Infinity,
