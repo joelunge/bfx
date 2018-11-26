@@ -82,8 +82,8 @@ function makeCallback(key_, saveValues_) {
     const key = key_;
     const saveValues = saveValues_;
     //const Model = mongoose.model(slugify(key), candleSchema)
-    let saveCount = 0
-    let lastTrade = {}
+    let saveCount = 0;
+    let lastTrade = {};
 
     const makeCurrentValues = (timestamp) => ({
         /* Comment to RAVI MADAN
@@ -93,31 +93,31 @@ function makeCallback(key_, saveValues_) {
 
         count: 0, // in total, how many trades was executed during 1 minute
 
-        countBuy // RAVI - in total, how many coins were bought during 1 minute
-        countSell // RAVI - in total, how many coins were sold during 1 minute
+        countBuy: 0, // RAVI - in total, how many coins were bought during 1 minute
+        countSell: 0, // RAVI - in total, how many coins were sold during 1 minute
 
-        totalAmount: 0, // i dont remember what this is :D can you check and add comment here?
-        totalPrice: 0, // i dont remember what this is :D can you check and add comment here?
+        totalAmount: 0, // This is the total amount in a minute. can be +ve and -ve // i dont remember what this is :D can you check and add comment here?
+        totalPrice: 0, // this is the total price in a minute. can be +ve and -ve // i dont remember what this is :D can you check and add comment here?
 
         changedPrice: 0, // how many of the trades did change the price during 1 minute
         changedPriceUp: 0, // how many of the trades did change the price up during 1 minute
         changedPriceDown: 0, // how many of the trades did change the price down during 1 minute
         
-        affectMax: 0, // i dont remember what this is :D can you check and add comment here?
-        affectMin: 0, // i dont remember what this is :D can you check and add comment here?
+        affectMax: 0, // no of time price went up // i dont remember what this is :D can you check and add comment here?
+        affectMin: 0, // no of time price went low // i dont remember what this is :D can you check and add comment here?
         
         volume: 0, // the sum of how many coins were traded, both buy and sell orders
 
-        volumeBuy // RAVI - the sum of how many coins were traded through BUY orders (positive amount)
-        volumeSell // RAVI - the sum of how many coins were traded through SELL orders (negative amount)
+        volumeBuy: 0, // RAVI - the sum of how many coins were traded through BUY orders (positive amount)
+        volumeSell: 0, // RAVI - the sum of how many coins were traded through SELL orders (negative amount)
 
-        biggestTrade // RAVI - the biggest trade during 1 minute, no matter if its a buy or sell order
-        biggestTradeBuy // RAVI - the biggst BUY trade during 1 minute
-        biggestTradeSell // RAVI - the biggest SELL trade during 1 minute
+        biggestTrade: 0, // RAVI - the biggest trade during 1 minute, no matter if its a buy or sell order
+        biggestTradeBuy: 0, // RAVI - the biggst BUY trade during 1 minute
+        biggestTradeSell: 0, // RAVI - the biggest SELL trade during 1 minute
 
-        averageTradeSize // RAVI - how big was the average trade (i think this would be amount / count)
-        averageTradeSizeBuy // RAVI - same as above but for buy orders only
-        averageTradeSizeSell // RAVI - same as above but for sell orders only
+        averageTradeSize: 0, // RAVI - how big was the average trade (i think this would be amount / count)
+        averageTradeSizeBuy: 0, // RAVI - same as above but for buy orders only
+        averageTradeSizeSell: 0, // RAVI - same as above but for sell orders only
 
         open: NaN,
         high: 0,
@@ -194,9 +194,32 @@ function makeCallback(key_, saveValues_) {
         // X hur stora var transaktionerna i snitt
         currentValues.totalPrice += price;
         currentValues.averagePrice = currentValues.totalPrice / currentValues.count;
+
+        //Average Trade Size
+        currentValues.averageTradeSize = Math.abs(currentValues.totalAmount / currentValues.count);
         
         // Trade Volume
-        currentValues.volume += Math.abs(amount)
+        currentValues.volume += Math.abs(amount);
+
+        // Trade Buy / Sell Volume
+        if(amount>0) {
+            currentValues.volumeBuy += Math.abs(amount);
+            currentValues.countBuy += 1;
+        } else {
+            currentValues.volumeSell += Math.abs(amount);
+            currentValues.countSell += 1;
+        }
+
+        //Average Trade Size Buy
+        if(currentValues.countBuy>0) {
+            currentValues.averageTradeSizeBuy = Math.abs(currentValues.volumeBuy / currentValues.countBuy);
+        }
+        
+        //Average Trade Size Sell
+        if(currentValues.countSell>0) {
+            currentValues.averageTradeSizeSell = Math.abs(currentValues.volumeSell / currentValues.countSell);
+        }
+        
 
         if (price > currentValues.high) {
             currentValues.affectMax++;
@@ -207,6 +230,33 @@ function makeCallback(key_, saveValues_) {
             currentValues.affectMin++;
             currentValues.low = price
         }
+
+        // Biggest Trade Buy && Biggest Trade Sell
+        if(amount > 0) {
+            currentValues.biggestTradeSell = isNaN(lastTrade.biggestTradeSell) ? 0 : lastTrade.biggestTradeSell;
+            if(lastTrade.amount > 0) {
+                if(amount > lastTrade.amount) {
+                    currentValues.biggestTradeBuy = amount;
+                } else {
+                    currentValues.biggestTradeBuy = lastTrade.amount;
+                }
+            } else {
+                currentValues.biggestTradeBuy = amount; //isNaN(lastTrade.biggestTradeBuy) ? 0 : lastTrade.biggestTradeBuy;
+            }
+
+        } else {
+            currentValues.biggestTradeBuy = isNaN(lastTrade.biggestTradeBuy) ? 0 : lastTrade.biggestTradeBuy;
+            if(lastTrade.amount < 0) {
+                if(amount < lastTrade.amount) {
+                    currentValues.biggestTradeSell = amount;
+                } else {
+                    currentValues.biggestTradeSell = lastTrade.amount;
+                }
+            } else {
+                currentValues.biggestTradeSell = Math.abs(amount); //isNaN(lastTrade.biggestTradeSell) ? 0 : lastTrade.biggestTradeSell;
+            }
+        }
+
 
         // X hur många av transaktionerna påverkade priset
         if (lastTrade.price && price !== lastTrade.price) {
@@ -222,17 +272,28 @@ function makeCallback(key_, saveValues_) {
             else {
                 currentValues.changedPriceDown++;
             }
+
+            if(Math.abs(amount) > Math.abs(lastTrade.amount)) {
+                biggestTrade = Math.abs(amount);
+            } else {
+                biggestTrade = Math.abs(lastTrade.amount);
+            }
+
         }
 
         // Save first price (Is only NaN first time)        
         if (isNaN(currentValues.open)) {
-            currentValues.open = price
+            currentValues.open = price;
         }
         
         // Always save last price, will result in closing price when saved
-        currentValues.close = price
+        currentValues.close = price;
+        biggestTradeBuy = Math.abs(currentValues.biggestTradeBuy);
+        biggestTradeSell = Math.abs(currentValues.biggestTradeSell);
 
-        lastTrade = { id, timestamp, amount, price }
+        lastTrade = { id, timestamp, amount, price, biggestTradeBuy, biggestTradeSell};
+
+
     }
 
     // Get values from tests
