@@ -118,7 +118,11 @@ function makeCallback(key_) {
 		} 
 
 		if(totalBids > (10*totalAsks)) {
-			console.log("For Currecy Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
+			console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
+		}
+
+		if(totalAsks > (10*totalBids)) {
+			console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
 		}
 	    
     }
@@ -142,8 +146,12 @@ function saveBook() {
 		
 	} 
 
-	if(totalBids > (3*totalAsks)) {
-		console.log("For Currecy Symbol :"+key+", the Total Bids("+totalBids+") are three(3) times larger than Total Asks("+ totalAsks +")")
+	if(totalBids > (10*totalAsks)) {
+		console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
+	}
+
+	if(totalAsks > (10*totalBids)) {
+		console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
 	}
 }
 
