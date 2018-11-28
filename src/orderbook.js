@@ -137,8 +137,8 @@ function saveBook() {
 		
 	} 
 
-	if(totalBids > (3*totalAsks)) {
-		console.log("Total Bids("+totalBids+") are three(3) times larger than Total Asks("+ totalAsks +")")
+	if(totalBids > (10*totalAsks)) {
+		console.log("Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
 	}
 
 	
