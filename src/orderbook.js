@@ -7,6 +7,7 @@ node bfx_test_book.js BTCUSD
 const WS = require('ws')
 const _ = require('lodash')
 const async = require('async')
+var request = require('request');
 
 const pair = process.argv[2]
 
@@ -138,11 +139,38 @@ function saveBook() {
 	} 
 
 	if(totalBids > (10*totalAsks)) {
-		console.log("Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
+  		console.log("Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
+      var dataString = 'BTC BULL x10';
+      sendSlackNotification(dataString)
+
 	}
+
+  if(totalAsks > (10*totalBids)) {
+      console.log("Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
+      var dataString = 'BTC BEAR x10';
+      sendSlackNotification(dataString)
+
+  }
 
 	
 
+}
+
+function sendSlackNotification(dataString) {
+  var options = {
+      url: 'https://hooks.slack.com/services/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',
+      method: 'POST',
+      headers: {
+          "Content-Type": "application/json"
+      },
+      body: '{"text" : "'+dataString+'"}'
+  }; 
+
+  request(options, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+          //console.log(body);
+      }
+  });
 }
 
 setInterval(function() {
