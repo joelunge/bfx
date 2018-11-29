@@ -104,30 +104,34 @@ function makeCallback(key_) {
 
 	    if(JSON.stringify(BOOK[key].bids) != '{}' || BOOK[key].bids!='undefined') {
 			totalBids = 0;
+			totalBidPrice = 0;
 			_.each(BOOK[key].bids, function(val) {
 				totalBids+=Math.abs(val['amount'])
+				totalBidPrice+=Math.abs(val['id'])
 	      })
 			
 		}
 
 		if(JSON.stringify(BOOK[key].asks) != '{}' || BOOK[key].asks!='undefined') {
 			totalAsks = 0;
+			totalAsksPrice = 0;
 			_.each(BOOK[key].asks, function(val) {
 				totalAsks+=Math.abs(val['amount'])
+				totalAsksPrice+=Math.abs(val['id'])
 	      })
 			
 		} 
 		var factorValue = Math.round()
 		if(totalBids > (10*totalAsks)) {
 			console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
-			var dataString = ':four_leaf_clover: ' +key.substring(1, 4)+'  -  x'+Math.round(totalBids / totalAsks)  + '  -  100 USD';
+			var dataString = ':four_leaf_clover: ' +key.substring(1, 4)+'  -  x'+Math.round(totalBids / totalAsks)  + '  -  '+ parseFloat(totalBids * (totalBidPrice / 25)).toFixed(0) +' USD';
 			sendSlackNotification(dataString)
 			
 		}
 
 		if(totalAsks > (10*totalBids)) {
 			console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
-			var dataString = ':diamonds: ' +key.substring(1, 4)+'  -  x'+Math.round(totalAsks / totalBids) + '  -  100 USD';
+			var dataString = ':diamonds: ' +key.substring(1, 4)+'  -  x'+Math.round(totalAsks / totalBids) + '  -  '+ parseFloat(totalAsks * (totalAsksPrice / 25)).toFixed(0) +' USD';
 			sendSlackNotification(dataString)
 		}
 	    
