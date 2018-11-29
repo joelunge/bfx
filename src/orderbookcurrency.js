@@ -120,14 +120,14 @@ function makeCallback(key_) {
 		var factorValue = Math.round()
 		if(totalBids > (10*totalAsks)) {
 			console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
-			var dataString = key.substring(1, 4)+' BULL x10';
+			var dataString = ':four_leaf_clover: ' +key.substring(1, 4)+'  -  x'+Math.round(totalBids / totalAsks)  + '  -  100 USD';
 			sendSlackNotification(dataString)
 			
 		}
 
 		if(totalAsks > (10*totalBids)) {
 			console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
-			var dataString = key.substring(1, 4)+' BEAR x10';
+			var dataString = ':diamonds: ' +key.substring(1, 4)+'  -  x'+Math.round(totalAsks / totalBids) + '  -  100 USD';
 			sendSlackNotification(dataString)
 		}
 	    
