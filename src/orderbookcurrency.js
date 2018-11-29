@@ -2,6 +2,7 @@ const ws = require('ws')
 const slugify = require('slugify')
 const config = require("./config")
 const _ = require('lodash')
+var request = require('request');
 
 const options = {
     WebSocket: ws, // custom WebSocket constructor
@@ -116,43 +117,39 @@ function makeCallback(key_) {
 	      })
 			
 		} 
-
+		var factorValue = Math.round()
 		if(totalBids > (10*totalAsks)) {
 			console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
+			var dataString = key.substring(1, 4)+' BULL x10';
+			sendSlackNotification(dataString)
+			
 		}
 
 		if(totalAsks > (10*totalBids)) {
 			console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
+			var dataString = key.substring(1, 4)+' BEAR x10';
+			sendSlackNotification(dataString)
 		}
 	    
     }
     return orderbookCallback
 }
 
-function saveBook() {
-	if(JSON.stringify(BOOK[key].bids) != '{}' || BOOK[key].bids!='undefined') {
-		totalBids = 0;
-		_.each(BOOK[key].bids, function(val) {
-			totalBids+=Math.abs(val['amount'])
-      })
-		
-	}
+function sendSlackNotification(dataString) {
+	var options = {
+	    url: 'https://hooks.slack.com/services/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',
+	    method: 'POST',
+	    headers: {
+	        "Content-Type": "application/json"
+	    },
+	    body: '{"text" : "'+dataString+'"}'
+	}; 
 
-	if(JSON.stringify(BOOK[key].asks) != '{}' || BOOK[key].asks!='undefined') {
-		totalAsks = 0;
-		_.each(BOOK[key].asks, function(val) {
-			totalAsks+=Math.abs(val['amount'])
-      })
-		
-	} 
-
-	if(totalBids > (10*totalAsks)) {
-		console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
-	}
-
-	if(totalAsks > (10*totalBids)) {
-		console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
-	}
+	request(options, function (error, response, body) {
+	    if (!error && response.statusCode == 200) {
+	        console.log(body);
+	    }
+	});
 }
 
 
