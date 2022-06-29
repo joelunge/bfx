@@ -16,7 +16,8 @@
 const ws = require('ws')
 const slugify = require('slugify')
 const mongoose = require("mongoose");
-const config = require("./config")
+const config = require("./config");
+var request = require('request');
 
 const options = {
     WebSocket: ws, // custom WebSocket constructor
@@ -145,6 +146,7 @@ function makeCallback(key_, saveValues_) {
         if (data[0] == "hb") {
             // Check if currentTrade is older than a minute
             //   if it is, save it and start a new currentTrade
+
             if (getCurrentMinute() > currentValues.timestamp) {
                 // If new minute and any values, save values
                 if (currentValues.count > 0) {
@@ -219,7 +221,6 @@ function makeCallback(key_, saveValues_) {
         if(currentValues.countSell>0) {
             currentValues.averageTradeSizeSell = Math.abs(currentValues.volumeSell / currentValues.countSell);
         }
-        
 
         if (price > currentValues.high) {
             currentValues.affectMax++;
@@ -257,7 +258,6 @@ function makeCallback(key_, saveValues_) {
             }
         }
 
-
         // X hur många av transaktionerna påverkade priset
         if (lastTrade.price && price !== lastTrade.price) {
             currentValues.changedPrice++;
@@ -290,6 +290,25 @@ function makeCallback(key_, saveValues_) {
         currentValues.close = price;
         biggestTradeBuy = Math.abs(currentValues.biggestTradeBuy);
         biggestTradeSell = Math.abs(currentValues.biggestTradeSell);
+
+        // console.log('last trade: ' + lastTrade.timestamp);
+        // console.log('current trade: ' + timestamp);
+
+        lastVolume = amount * price;
+
+        console.log(lastVolume);
+
+        if (lastTrade.timestamp === timestamp) {
+        	console.log('same timestamp');
+        }
+
+        if (amount * price > 100000) {
+            sendSlackNotification(':four_leaf_clover: ' +addCommas(Math.round(amount * price)) + ' '+key.replace('t', '').replace('USD', '')+'');
+        }
+
+        if (amount * price < -100000) {
+            sendSlackNotification(':diamonds: ' +addCommas(Math.round(amount * price)) + ' '+key.replace('t', '').replace('USD', '')+'');
+        }
 
         lastTrade = { id, timestamp, amount, price, biggestTradeBuy, biggestTradeSell};
 
@@ -373,4 +392,33 @@ if (require.main === module) {
 
 module.exports = {
     makeCallback
+}
+
+function sendSlackNotification(dataString) {
+    var options = {
+        url: 'https://hooks.slack.com/services/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',
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: '{"text" : "'+dataString+'"}'
+    }; 
+
+    request(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            //console.log(body);
+        }
+    });
+}
+
+function addCommas(nStr) {
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ' ' + '$2');
+    }
+    return x1 + x2;
 }

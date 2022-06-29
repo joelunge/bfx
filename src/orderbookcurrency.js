@@ -123,16 +123,26 @@ function makeCallback(key_) {
 		} 
 		var factorValue = Math.round()
 		if(totalBids > (10*totalAsks)) {
-			console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")")
-			var dataString = ':four_leaf_clover: ' +key.substring(1, 4)+'  -  x'+Math.round(totalBids / totalAsks)  + '  -  '+ parseFloat(totalBids * (totalBidPrice / 25)).toFixed(0) +' USD';
-			sendSlackNotification(dataString)
+			var bidsVolume = parseFloat(totalBids * (totalBidPrice / 25)).toFixed(0);
+			var dataString = ':four_leaf_clover: ' +key.substring(1, 4)+'  -  x'+Math.round(totalBids / totalAsks)  + '  -  '+ bidsVolume +' USD';
+			// console.log(dataString);
+			// console.log("For Currency Symbol "+key+", the Total Bids("+totalBids+") are ten(10) times larger than Total Asks("+ totalAsks +")");
+
+			if (bidsVolume >= 500000) {
+				sendSlackNotification(dataString);
+			}
 			
 		}
 
 		if(totalAsks > (10*totalBids)) {
-			console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")")
-			var dataString = ':diamonds: ' +key.substring(1, 4)+'  -  x'+Math.round(totalAsks / totalBids) + '  -  '+ parseFloat(totalAsks * (totalAsksPrice / 25)).toFixed(0) +' USD';
-			sendSlackNotification(dataString)
+			var asksVolume = parseFloat(totalAsks * (totalAsksPrice / 25)).toFixed(0);
+			var dataString = ':diamonds: ' +key.substring(1, 4)+'  -  x'+Math.round(totalAsks / totalBids) + '  -  '+ asksVolume +' USD';
+			// console.log(dataString);
+			// console.log("For Currency Symbol "+key+", the Total Asks("+totalAsks+") are ten(10) times larger than Total Bids("+ totalBids +")");
+
+			if (asksVolume >= 500000) {
+				sendSlackNotification(dataString);
+			}
 		}
 	    
     }
